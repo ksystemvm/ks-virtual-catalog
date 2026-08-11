@@ -18,13 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.core.management import call_command
 from django.http import HttpResponse
-from django.contrib.auth.models import User
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView
+# from django.contrib.auth.models import User
+from users.models import CustomUser
+from users.serializers import CustomTokenObtainPairSerializer
 
 def setup_superuser(request):
-    # Comprobar si el Usuario ya existe antes de crearlo
-    if not User.objects.filter(username='ksystem').exists():
-        # Reemplaza los datos por los que tú quieras usar:
-        User.objects.create_superuser(
+    if not CustomUser.objects.filter(username='ksystem').exists():
+        CustomUser.objects.create_superuser(
             username='ksystem', 
             email='ksystem.vm@gmail.com', 
             password='18298561.vm'
@@ -39,14 +41,19 @@ def generar_estilos(request):
     except Exception as e:
         return HttpResponse(f"Hubo un error: {str(e)}")
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/records/', include('records.urls')),
     path('api/catalog/', include('catalog.urls')),
 
     # Ruta secreta temporal
     # ---------------------
-    # path('create-superuser/', setup_superuser),
+    path('create-superuser/', setup_superuser),
     # path('setup-styles/', generar_estilos),
 ]
 
