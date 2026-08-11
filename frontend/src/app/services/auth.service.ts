@@ -1,19 +1,43 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
+import { tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private tokenKey = 'access_token';
+  private http = inject(HttpClient);
+  private baseUrl = environment.apiUrl;
 
-  // Guarda el token al iniciar sesión
-  setToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+  private readonly APP_STORAGE_KEY = 'KS_VIRTUAL_CATALOG_ACCESS';
+
+  login(credentials: {username: string; password: string}): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}login/`, credentials).pipe(
+      tap(response => {
+        if(response && response.access) {
+          this.setToken(response.access);
+        }
+      })
+    )
   }
 
+  private getAppData(): any {
+    const storedData = localStorage.getItem(this.APP_STORAGE_KEY);
+    return storedData ? JSON.parse(storedData) : {};
+  }
+
+  setToken(token: string): void {
+    const appData = this.getAppData();
+    appData.access_token = token;
+    localStorage.setItem(this.APP_STORAGE_KEY, JSON.stringify(appData));
+  }
+  
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const appData = this.getAppData();
+    return appData.access_token ? appData.access_token : null;
   }
 
   // Desencripta el token y extrae el rol que inyectamos en Django
@@ -31,6 +55,6 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.APP_STORAGE_KEY);
   }
 }
