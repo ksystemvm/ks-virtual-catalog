@@ -135,6 +135,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameModelBackend', 
+    'django.contrib.auth.backends.ModelBackend',  
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -174,3 +179,14 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tu_correo_de_prueba@gmail.com' # Tu correo real
+EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'       # Tu contraseña de aplicación (sin espacios)
+DEFAULT_FROM_EMAIL = 'Catálogo Virtual <tu_correo_de_prueba@gmail.com>'
+
+
+
