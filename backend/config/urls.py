@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/records/', include('records.urls')),
     path('api/catalog/', include('catalog.urls')),
+    path('api/auth/'), include('users.urls'),
 
     # Ruta secreta temporal
     # ---------------------

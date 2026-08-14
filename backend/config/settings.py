@@ -181,12 +181,18 @@ SIMPLE_JWT = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'tu_correo_de_prueba@gmail.com' # Tu correo real
-EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'       # Tu contraseña de aplicación (sin espacios)
-DEFAULT_FROM_EMAIL = 'Catálogo Virtual <tu_correo_de_prueba@gmail.com>'
+EMAIL_HOST = 'mail.cencostore.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'accounts@cencostore.com'
+EMAIL_HOST_PASSWORD = 'v2ZP)U0M0R-WE*]1'
+DEFAULT_FROM_EMAIL = 'Catálogo Virtual <accounts@cencostore.com>'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+EMAIL_USE_TLS = False
+# EMAIL_HOST_USER = 'tu_correo_de_prueba@gmail.com' # Tu correo real
+# EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'       # Tu contraseña de aplicación (sin espacios)
+# DEFAULT_FROM_EMAIL = 'Catálogo Virtual <tu_correo_de_prueba@gmail.com>'
 
 
 
