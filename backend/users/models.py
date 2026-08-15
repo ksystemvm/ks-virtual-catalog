@@ -9,12 +9,12 @@ class CustomUser(AbstractUser):
     class Role(models.TextChoices):
         ADMIN = 'ADMIN', _('Administrador')
         SUPERVISOR = 'SUPERVISOR', _('Supervisor / Vendedor')
-        CLIENTE = 'CLIENTE', _('Usuario Final / Cliente')
+        CUSTOMER = 'CUSTOMER', _('Usuario Final / Cliente')
 
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
-        default=Role.CLIENTE,
+        default=Role.CUSTOMER,
         verbose_name=_('Rol de Usuario')
     )
 

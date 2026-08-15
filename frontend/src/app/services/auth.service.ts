@@ -46,7 +46,7 @@ export class AuthService {
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
-        return decodedToken.role; // Retornará 'ADMIN', 'SUPERVISOR' o 'CLIENTE'
+        return decodedToken.role || 'CUSTOMER';
       } catch (Error) {
         return null;
       }
@@ -54,7 +54,30 @@ export class AuthService {
     return null;
   }
 
+  register(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}auth/register/`, payload);
+  }
+
+  activateAccount(uidb64: string, token: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}auth/activate/${uidb64}/${token}/`);
+  }
+
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}auth/request-password-reset/`, { email });
+  }
+
+  resetPassword(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}auth/reset-password/`, payload);
+  }
+
   logout(): void {
     localStorage.removeItem(this.APP_STORAGE_KEY);
   }
+
+  isLoggedIn(): boolean {
+    return this.getToken() !== null;
+  }
+
+
+
 }
