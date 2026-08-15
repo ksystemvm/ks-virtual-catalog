@@ -2,6 +2,18 @@ import { Routes } from '@angular/router';
 import { roleGuard } from './services/role.guard';
 
 export const routes: Routes = [
+  {
+    path: 'login', 
+    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent), 
+  },
+  {
+    path: 'signup', 
+    loadComponent: () => import('./features/auth/register/register.component').then(m => m.AuthRegisterComponent), 
+  },
+  {
+    path: 'reset-password', 
+    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.AuthResetPasswordComponent), 
+  },
   // { 
   //   path: '', 
   //   component: CatalogoPublicoComponent // Acceso libre
