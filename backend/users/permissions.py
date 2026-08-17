@@ -2,44 +2,50 @@ from rest_framework import permissions
 
 class IsAdminRole(permissions.BasePermission):
     """
-    Permiso exclusivo para usuarios con rol ADMINISTRADOR.
+    Permiso exclusivo para Administradores (Control Total).
     """
     def has_permission(self, request, view):
         return bool(
             request.user and 
             request.user.is_authenticated and 
-            request.user.role == 'ADMIN'
+            request.user.is_admin
         )
 
 
-class IsSupervisorRole(permissions.BasePermission):
+class IsManagerOrAdminRole(permissions.BasePermission):
     """
-    Permiso para usuarios con rol SUPERVISOR o ADMINISTRADOR.
+    Permite lectura/edición a MANAGERs (sin eliminar).
+    Otorga control total si el usuario es ADMIN.
     """
     def has_permission(self, request, view):
-        return bool(
-            request.user and 
-            request.user.is_authenticated and 
-            request.user.role in ['SUPERVISOR', 'ADMIN']
-        )
+        if not (request.user and request.user.is_authenticated):
+            return False
 
+        if request.user.is_admin:
+            return True
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+        if request.user.is_manager:
+            if request.method in ['DELETE']:
+                return False
+            return True
+
+        return False
+
+class IsReadOnlyOrAuthenticatedCustomer(permissions.BasePermission):
     """
     PERMISO PARA EL CATÁLOGO PÚBLICO:
     - Cualquier usuario (incluso anónimo/sin iniciar sesión) puede VER los productos (GET, HEAD, OPTIONS).
     - Solo los usuarios con rol ADMINISTRADOR pueden CREAR, EDITAR o ELIMINAR productos (POST, PUT, DELETE).
     """
     def has_permission(self, request, view):
-        # request.method SAFE_METHODS engloba ('GET', 'HEAD', 'OPTIONS')
-        if request.method in permissions.SAFE_METHODS:
-            return True  # Acceso libre sin necesidad de login
         
-        # Para peticiones de modificación, exigimos estar autenticado y ser ADMIN
+        if request.method in permissions.SAFE_METHODS:
+            return True  
+        
         return bool(
             request.user and 
             request.user.is_authenticated and 
-            request.user.role == 'ADMIN'
+            request.user.is_email_verified
         )
 
 
@@ -52,11 +58,11 @@ class IsOrderPermission(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         # Exige que al menos esté autenticado para interactuar con pedidos
-        return bool(request.user and request.user.is_authenticated)
+        return bool(request.user and request.user.is_authenticated and request.user.is_email_verified)
 
     def has_object_permission(self, request, view, obj):
         # Admin y Supervisor pueden ver y editar cualquier pedido
-        if request.user.role in ['ADMIN', 'SUPERVISOR']:
+        if request.user.role in ['ADMIN', 'MANAGER']:
             return True
         # El cliente solo puede ver o consultar su propio pedido
         return obj.cliente == request.user

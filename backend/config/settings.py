@@ -159,6 +159,10 @@ STATIC_URL = 'static/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ALLOWED_ORIGINS = [
@@ -194,5 +198,5 @@ EMAIL_USE_TLS = False
 # EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'       # Tu contraseña de aplicación (sin espacios)
 # DEFAULT_FROM_EMAIL = 'Catálogo Virtual <tu_correo_de_prueba@gmail.com>'
 
-
+FRONTEND_URL = 'http://localhost:4200'
 

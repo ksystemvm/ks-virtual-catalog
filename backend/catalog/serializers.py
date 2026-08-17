@@ -1,65 +1,85 @@
 from rest_framework import serializers
 from .models import (
-    Unidad, 
-    UnidadDetalle, 
-    Producto, 
-    Presentacion, 
-    VarianteGrupo, 
-    VarianteGrupoValor, 
-    Variante
+    Unit, UnitDetail, Category, ProductBase,
+    ProductPresentation, VariantGroup, VariantGroupValue,
+    Product, ProductImage
 )
 
-# --- SERIALIZADORES DE UNIDADES ---
-class UnidadDetalleSerializer(serializers.ModelSerializer):
+
+class UnitSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UnidadDetalle
-        fields = '__all__'
-
-class UnidadSerializer(serializers.ModelSerializer):
-    detalles = UnidadDetalleSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Unidad
-        fields = ['id', 'nombre', 'detalles']
+        model = Unit
+        fields = ['id', 'name']
 
 
-# --- SERIALIZADORES DE VARIANTES Y ATRIBUTOS ---
-class VarianteGrupoValorSerializer(serializers.ModelSerializer):
-    grupo_nombre = serializers.ReadOnlyField(source='grupo.nombre')
+class UnitDetailSerializer(serializers.ModelSerializer):
+    unit_name = serializers.ReadOnlyField(source='unit.name')
+    unit_type_display = serializers.CharField(source='get_unit_type_display', read_only=True)
 
     class Meta:
-        model = VarianteGrupoValor
-        fields = ['id', 'grupo', 'grupo_nombre', 'valor', 'identificador']
+        model = UnitDetail
+        fields = ['id', 'unit', 'unit_name', 'unit_type', 'unit_type_display', 'name', 'quantity']
 
-class VarianteGrupoSerializer(serializers.ModelSerializer):
-    valores = VarianteGrupoValorSerializer(many=True, read_only=True)
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'description', 'created_at']
+
+
+class VariantGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VariantGroup
+        fields = ['id', 'name']
+
+
+class VariantGroupValueSerializer(serializers.ModelSerializer):
+    group_name = serializers.ReadOnlyField(source='group.name')
 
     class Meta:
-        model = VarianteGrupo
-        fields = ['id', 'nombre', 'valores']
+        model = VariantGroupValue
+        fields = ['id', 'group', 'group_name', 'value', 'html_color']
 
-class VarianteSerializer(serializers.ModelSerializer):
-    # 'valores_detalle' devolverá los datos completos para lectura en Angular
-    valores_detalle = VarianteGrupoValorSerializer(source='valores', many=True, read_only=True)
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image', 'is_main', 'created_at']
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
+    variants = VariantGroupValueSerializer(many=True, read_only=True)
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    presentation_name = serializers.ReadOnlyField(source='presentation.unit.name')
+    base_product_name = serializers.ReadOnlyField(source='presentation.product.name')
 
     class Meta:
-        model = Variante
-        fields = ['id', 'producto', 'valores', 'valores_detalle', 'modelo', 'referencia', 'precio', 'stock_disponible']
+        model = Product
+        fields = [
+            'id', 'presentation', 'base_product_name', 'presentation_name',
+            'variants', 'model', 'reference', 'extra_price',
+            'total_price', 'stock', 'images'
+        ]
 
 
-# --- SERIALIZADORES DE PRESENTACIONES Y PRODUCTO PRINCIPAL ---
-class PresentacionSerializer(serializers.ModelSerializer):
-    unidad_detalle = UnidadDetalleSerializer(source='unidad', read_only=True)
-
-    class Meta:
-        model = Presentacion
-        fields = ['id', 'producto', 'unidad', 'unidad_detalle']
-
-class ProductoSerializer(serializers.ModelSerializer):
-    # Anidamos las variantes y presentaciones asociadas para obtener todo en un solo GET
-    variantes = VarianteSerializer(many=True, read_only=True)
-    presentaciones = PresentacionSerializer(many=True, read_only=True)
+class ProductPresentationSerializer(serializers.ModelSerializer):
+    unit = UnitDetailSerializer(read_only=True)
+    products = ProductSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Producto
-        fields = ['id', 'nombre', 'descripcion', 'fecha_creacion', 'fecha_actualizacion', 'variantes', 'presentaciones']
+        model = ProductPresentation
+        fields = ['id', 'product', 'unit', 'price', 'products']
+
+
+class ProductBaseSerializer(serializers.ModelSerializer):
+    category_name = serializers.ReadOnlyField(source='category.name')
+    presentations = ProductPresentationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ProductBase
+        fields = [
+            'id', 'category', 'category_name', 'name',
+            'slug', 'description', 'presentations',
+            'created_at', 'updated_at'
+        ]

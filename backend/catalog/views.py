@@ -1,70 +1,106 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters, permissions
+from rest_framework.pagination import PageNumberPagination
 from .models import (
-    Unidad, 
-    UnidadDetalle, 
-    Producto, 
-    Presentacion, 
-    VarianteGrupo, 
-    VarianteGrupoValor, 
-    Variante
+    Unit, UnitDetail, Category, ProductBase,
+    ProductPresentation, VariantGroup, VariantGroupValue,
+    Product, ProductImage
 )
 from .serializers import (
-    UnidadSerializer,
-    UnidadDetalleSerializer,
-    ProductoSerializer,
-    PresentacionSerializer,
-    VarianteGrupoSerializer,
-    VarianteGrupoValorSerializer,
-    VarianteSerializer
-)
-from users.permissions import (
-    IsAdminOrReadOnly, 
-    IsAdminRole,
-    IsOrderPermission,
-    IsSupervisorRole
+    UnitSerializer, UnitDetailSerializer, CategorySerializer,
+    ProductBaseSerializer, ProductPresentationSerializer,
+    VariantGroupSerializer, VariantGroupValueSerializer,
+    ProductSerializer, ProductImageSerializer
 )
 
-class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all().order_by('-fecha_creacion')
-    serializer_class = ProductoSerializer
-    permission_classes = [IsAdminOrReadOnly]
+class CatalogAccessPermission(permissions.BasePermission):
+    """
+    Control de acceso basado en Roles:
+    - CUSTOMER (o anónimo): Solo lectura (GET, HEAD, OPTIONS).
+    - MANAGER: Lectura y Edición (PUT, PATCH) global. Creación (POST) SOLO en Productos y Presentaciones.
+    - ADMIN: Control total (POST, PUT, PATCH, DELETE).
+    """
+    def has_permission(self, request, view):
+        # 1. Acceso al Catálogo (Lectura) permitido para todos (incluye CUSTOMER)
+        if request.method in permissions.SAFE_METHODS:
+            return True
+            
+        # 2. Para cualquier otra acción, el usuario debe estar autenticado
+        if not request.user or not request.user.is_authenticated:
+            return False
 
-class VarianteViewSet(viewsets.ModelViewSet):
-    queryset = Variante.objects.all()
-    serializer_class = VarianteSerializer
-    permission_classes = [IsAdminOrReadOnly]
+        # 3. ADMIN: Control total
+        if getattr(request.user, 'is_admin', False) or request.user.is_superuser:
+            return True
 
-class PresentacionViewSet(viewsets.ModelViewSet):
-    queryset = Presentacion.objects.all()
-    serializer_class = PresentacionSerializer
+        # 4. MANAGER: Lógica condicional.
+        if getattr(request.user, 'is_manager', False):
+            if request.method in ['PUT', 'PATCH']:
+                return True
 
-class UnidadViewSet(viewsets.ModelViewSet):
-    queryset = Unidad.objects.all()
-    serializer_class = UnidadSerializer
+            if request.method == 'POST':
+                allowed_views = ['ProductBaseViewSet', 'ProductViewSet', 'ProductPresentationViewSet']
+                if view.__class__.__name__ in allowed_views:
+                    return True
+                
+            return False
 
-class UnidadDetalleViewSet(viewsets.ModelViewSet):
-    queryset = UnidadDetalle.objects.all()
-    serializer_class = UnidadDetalleSerializer
+        # Si no cumple ninguna de las anteriores, denegar acceso
+        return False
 
-class VarianteGrupoViewSet(viewsets.ModelViewSet):
-    queryset = VarianteGrupo.objects.all()
-    serializer_class = VarianteGrupoSerializer
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 12
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
-class VarianteGrupoValorViewSet(viewsets.ModelViewSet):
-    queryset = VarianteGrupoValor.objects.all()
-    serializer_class = VarianteGrupoValorSerializer
 
-# class PedidoViewSet(viewsets.ModelViewSet):
-#     serializer_class = PedidoSerializer
-#     permission_classes = [IsOrderPermission]
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+    permission_classes = [CatalogAccessPermission]
 
-#     def get_queryset(self):
-#         user = self.request.user
-        
-#         # Si es Admin o Supervisor, retornamos TODOS los pedidos
-#         if user.role in ['ADMIN', 'SUPERVISOR']:
-#             return Pedido.objects.all()
-        
-#         # Si es Cliente, filtramos para que solo vea SUS propios pedidos
-#         return Pedido.objects.filter(cliente=user)
+class ProductPresentationViewSet(viewsets.ModelViewSet):
+    queryset = ProductPresentation.objects.select_related('product', 'unit').all()
+    serializer_class = ProductPresentationSerializer
+    permission_classes = [CatalogAccessPermission]
 
+class ProductBaseViewSet(viewsets.ModelViewSet):
+    queryset = ProductBase.objects.prefetch_related(
+        'presentations__unit',
+        'presentations__products__variants__group',
+        'presentations__products__images'
+    ).select_related('category').all()
+    serializer_class = ProductBaseSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description', 'category__name']
+    ordering_fields = ['created_at', 'name']
+    permission_classes = [CatalogAccessPermission]
+
+
+
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.select_related('presentation__product', 'presentation__unit').prefetch_related('variants', 'images').all()
+    serializer_class = ProductSerializer
+    search_fields = ['reference', 'model']
+    permission_classes = [CatalogAccessPermission]
+
+
+class UnitViewSet(viewsets.ModelViewSet):
+    queryset = Unit.objects.all()
+    serializer_class = UnitSerializer
+    permission_classes = [CatalogAccessPermission]
+
+
+class UnitDetailViewSet(viewsets.ModelViewSet):
+    queryset = UnitDetail.objects.select_related('unit').all()
+    serializer_class = UnitDetailSerializer
+    permission_classes = [CatalogAccessPermission]
+
+
+class VariantGroupViewSet(viewsets.ModelViewSet):
+    queryset = VariantGroup.objects.prefetch_related('variant_values').all()
+    serializer_class = VariantGroupSerializer
+    permission_classes = [CatalogAccessPermission]

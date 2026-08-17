@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.core.management import call_command
 from django.http import HttpResponse
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenObtainPairView
 # from django.contrib.auth.models import User
@@ -50,7 +52,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/records/', include('records.urls')),
     path('api/catalog/', include('catalog.urls')),
-    path('api/auth/'), include('users.urls'),
+    # path('api/auth/'), include('users.urls'),
 
     # Ruta secreta temporal
     # ---------------------
@@ -58,3 +60,5 @@ urlpatterns = [
     # path('setup-styles/', generar_estilos),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
