@@ -2,18 +2,24 @@ import { Routes } from '@angular/router';
 import { roleGuard } from './services/role.guard';
 
 export const routes: Routes = [
+  // {
+  //   path: 'login', 
+  //   loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent), 
+  // },
+  // {
+  //   path: 'signup', 
+  //   loadComponent: () => import('./features/auth/register/register.component').then(m => m.AuthRegisterComponent), 
+  // },
+  // {
+  //   path: 'reset-password', 
+  //   loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.AuthResetPasswordComponent), 
+  // },
   {
-    path: 'login', 
-    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent), 
+    path: 'catalog',
+    loadComponent: () => import('./features/catalog/components/catalog-list/catalog-list.component').then(m => m.CatalogListComponent),
   },
-  {
-    path: 'signup', 
-    loadComponent: () => import('./features/auth/register/register.component').then(m => m.AuthRegisterComponent), 
-  },
-  {
-    path: 'reset-password', 
-    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.AuthResetPasswordComponent), 
-  },
+  { path: '', redirectTo: '/catalog', pathMatch: 'full' },
+  { path: '**', redirectTo: '/catalog' },
   // { 
   //   path: '', 
   //   component: CatalogoPublicoComponent // Acceso libre

@@ -1,6 +1,7 @@
-import { $a as ɵɵdefineComponent, $c as effect, Bt as computed, En as ElementRef, Fc as PLATFORM_ID, Hi as setClassMetadata, In as Input, Ls as ɵɵstyleProp, O as booleanAttribute, Ol as ɵɵinject, Pn as Inject, Tc as Injector, Tl as ɵɵdefineInjector, X as input, _l as runInInjectionContext, al as inject, an as ChangeDetectionStrategy, cn as Component, f as HostAttributeToken, fo as ɵɵdomProperty, ir as Renderer2, ns as ɵɵprojection, qn as NgModule, rs as ɵɵprojectionDef, rt as numberAttribute, to as ɵɵdefineNgModule, va as ɵɵclassMap, wc as InjectionToken } from "./core-Bv1n3mwM.js";
-import { t as isObservable } from "./isObservable-CpjI1x8V.js";
-import { d as isPlatformServer } from "./common-BUAW-DRE.js";
+import { Ci as runInInjectionContext, U as InjectionToken, W as Injector, c as computed, rt as PLATFORM_ID, sa as ɵɵdefineInjector, ua as ɵɵinject, xr as inject, yn as effect } from "./_resource-chunk-peHy8-o6.js";
+import { Cs as ɵɵstyleProp, Gt as ChangeDetectionStrategy, Ho as ɵɵprojection, Jt as Component, Nn as NgModule, O as booleanAttribute, Oi as setClassMetadata, Qa as ɵɵdomProperty, Sn as Input, Uo as ɵɵprojectionDef, Va as ɵɵdefineNgModule, Wn as Renderer2, X as input, bn as Inject, f as HostAttributeToken, fn as ElementRef, ia as ɵɵclassMap, rt as numberAttribute, za as ɵɵdefineComponent } from "./core-Dtch0U88.js";
+import { t as isObservable } from "./isObservable-CU71uFFb.js";
+import { d as isPlatformServer } from "./common-Cme7NVNz.js";
 //#region node_modules/@ng-icons/core/fesm2022/ng-icons-core.mjs
 var _c0 = ["*"];
 var NgGlyphConfigToken = new InjectionToken("Ng Glyph Config");

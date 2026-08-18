@@ -132,4 +132,4 @@ class ProductImage(models.Model):
         verbose_name_plural = "Imágenes de Productos"
 
     def __str__(self):
-        return f"Imagen de {self.product.base.product.name}"
+        return f"Imagen de {self.product.presentation.product.name}"

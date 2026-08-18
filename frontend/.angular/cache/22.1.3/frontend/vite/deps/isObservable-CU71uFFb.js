@@ -1,4 +1,4 @@
-import { wn as isFunction, xn as Observable } from "./operators-CZEcSKwx.js";
+import { Sn as Observable, Tn as isFunction } from "./operators-wk7D_GZz.js";
 //#region node_modules/rxjs/dist/esm5/internal/util/isObservable.js
 function isObservable(obj) {
 	return !!obj && (obj instanceof Observable || isFunction(obj.lift) && isFunction(obj.subscribe));
