@@ -8,11 +8,11 @@ export interface Unit {
 export interface UnitDetail {
   id: number;
   unit: number;
-  unitName: string;
-  unitType: number;
-  unitTypeDisplay: string;
+  unit_name: string;
+  unit_type: number;
+  unit_type_display: string;
   name: string;
-  quantity: string; // Los DecimalField de Django llegan como strings en JSON
+  quantity: string; 
 }
 
 export interface Category {
@@ -20,7 +20,7 @@ export interface Category {
   name: string;
   slug: string;
   description: string | null;
-  createdAt: string;
+  created_at: string;
 }
 
 // --- VARIANTES E IMÁGENES ---
@@ -33,16 +33,16 @@ export interface VariantGroup {
 export interface VariantGroupValue {
   id: number;
   group: number;
-  groupName: string;
+  group_name: string;
   value: string;
-  htmlColor: string | null;
+  html_color: string | null;
 }
 
 export interface ProductImage {
   id: number;
   image: string; // URL de la imagen que nos entrega el backend
-  isMain: boolean;
-  createdAt: string;
+  is_main: boolean;
+  created_at: string;
 }
 
 // --- PRODUCTOS (JERARQUÍA COMPLETA) ---
@@ -50,13 +50,13 @@ export interface ProductImage {
 export interface Product {
   id: number;
   presentation: number;
-  baseProductName: string;
-  presentationName: string;
+  base_product_name: string;
+  presentation_name: string;
   variants: VariantGroupValue[];
   model: string | null;
   reference: string | null;
-  extraPrice: string; // DecimalField desde Django
-  totalPrice: string; // Propiedad calculada (@property)
+  extra_price: string; // DecimalField desde Django
+  total_price: string; // Propiedad calculada (@property)
   stock: number;
   images: ProductImage[];
 }
@@ -72,13 +72,13 @@ export interface ProductPresentation {
 export interface ProductBase {
   id: number;
   category: number;
-  categoryName: string;
+  category_name: string;
   name: string;
   slug: string;
   description: string | null;
   presentations: ProductPresentation[];
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // --- PAGINACIÓN GENÉRICA ---

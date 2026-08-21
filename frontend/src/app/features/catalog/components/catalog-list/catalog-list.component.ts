@@ -17,10 +17,17 @@ import { ProductBase } from '../../models/catalog.models';
 export class CatalogListComponent implements OnInit {
   private catalogService = inject(CatalogService);
 
-  // Estados
+  // --- ESTADOS DE DATOS ---
   products = signal<ProductBase[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+
+  // --- ESTADOS DE PAGINACION ---
+  currentPage = signal<number>(1);
+  totalItems = signal<number>(0);
+  totalPages = signal<number>(1);
+  hasNext = signal<boolean>(false);
+  hasPrevious = signal<boolean>(false);
 
   // Control de la barra de búsqueda
   searchControl = new FormControl('');
@@ -32,21 +39,24 @@ export class CatalogListComponent implements OnInit {
       distinctUntilChanged(), // Solo busca si el texto es diferente al anterior
       takeUntilDestroyed() // Evita fugas de memoria cuando el componente se destruye
     ).subscribe(searchTerm => {
-      this.loadProducts(searchTerm || '');
+      this.currentPage.set(1);
+      this.loadProducts(1, searchTerm || '');
     });
   }
 
   ngOnInit(): void {
-    this.loadProducts(); // Carga inicial sin filtros
+    this.loadProducts(this.currentPage());
   }
 
-  loadProducts(search: string = ''): void {
+  loadProducts(page: number, search: string = this.searchControl.value || ''): void {
     this.loading.set(true);
-    this.error.set(null); // Limpiamos errores previos al buscar
+    this.error.set(null); 
     
-    this.catalogService.getProducts(1, search).subscribe({
+    this.catalogService.getProducts(page, search).subscribe({
       next: (response) => {
         this.products.set(response.results);
+        this.totalItems.set(response.count);
+
         this.loading.set(false);
       },
       error: (err) => {

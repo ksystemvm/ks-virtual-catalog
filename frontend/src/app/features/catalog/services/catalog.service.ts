@@ -9,7 +9,7 @@ import { ProductBase, PaginatedResponse } from '../models/catalog.models';
 export class CatalogService {
   // Ajusta el puerto o el prefijo de la URL si tu Django corre en otra dirección.
   // En un proyecto de producción, esto iría en un archivo de environment.
-  private apiUrl = 'http://localhost:8000/api/catalog';
+  private apiUrl = 'http://localhost:8000/api/catalog/products-base';
 
   constructor(private http: HttpClient) { }
 
